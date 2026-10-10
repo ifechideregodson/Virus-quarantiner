@@ -1,0 +1,36 @@
+# Render Blueprint for the ShieldScan website, on Render's free plan.
+#
+# Free-plan limits to know about:
+#   * The filesystem is not kept between restarts. The database and release ZIP
+#     are rebuilt on every deploy (see buildCommand), so anything added in the
+#     admin while the site runs is lost when the service restarts or redeploys.
+#   * The service sleeps after about 15 minutes without traffic and takes
+#     roughly a minute to wake on the next visit.
+services:
+  - type: web
+    name: shieldscan
+    runtime: python
+    plan: free
+    autoDeploy: true
+    buildCommand: |
+      pip install -r requirements.txt
+      python manage.py collectstatic --noinput
+      python manage.py migrate --noinput
+      python manage.py build_release --force --notes "Published automatically on deploy."
+      if [ -n "$DJANGO_SUPERUSER_PASSWORD" ]; then python manage.py createsuperuser --noinput; fi
+    startCommand: gunicorn config.wsgi:application --bind 0.0.0.0:$PORT
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.7
+      - key: DJANGO_SECRET_KEY
+        generateValue: true
+      - key: DJANGO_HTTPS
+        value: "1"
+      # Admin login. Render asks for the email and password when you create
+      # the Blueprint. Leave the password empty to skip creating an admin.
+      - key: DJANGO_SUPERUSER_USERNAME
+        value: admin
+      - key: DJANGO_SUPERUSER_EMAIL
+        sync: false
+      - key: DJANGO_SUPERUSER_PASSWORD
+        sync: false

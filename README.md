@@ -73,6 +73,22 @@ gunicorn config.wsgi --bind 0.0.0.0:8000
 
 Static files are served by WhiteNoise. Release ZIPs live in `MEDIA_ROOT` (`DJANGO_MEDIA_ROOT`) and are served only through the download view. Back up that folder and the SQLite file (`DJANGO_DB_PATH`), or point `DATABASES` at PostgreSQL. See `.env.example`.
 
+## Deploy on Render (free plan)
+
+`render.yaml` is a Render Blueprint.
+
+1. In Render choose New, then Blueprint, and select this repository.
+2. Enter an email and a password for the admin account when asked. Leave the password empty to skip creating one.
+3. Apply. The first build takes a few minutes. The site appears at `https://<service-name>.onrender.com`.
+
+Every deploy installs the requirements, collects static files, migrates, publishes a fresh release ZIP from the scanner in `downloads/engine/` and creates the admin user. The secret key is generated for you and the hostname is picked up from Render automatically.
+
+What the free plan means for this site:
+
+- The filesystem is wiped on every restart and redeploy. The database and release ZIP are rebuilt each time, so releases, signatures and download counts added while the site runs are lost. Make lasting changes in the code and redeploy. For persistence, move to a paid plan with a disk or point `DATABASES` at PostgreSQL.
+- The service sleeps after about 15 minutes without visitors and takes around a minute to wake.
+- The `/scan/` page works as normal. Files are still read in memory and never stored.
+
 ## Notes on safety
 
 - The upload page reads each file into memory, scans it and drops it. Nothing is written to disk and no scan history is kept.

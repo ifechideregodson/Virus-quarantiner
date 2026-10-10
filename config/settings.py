@@ -38,6 +38,13 @@ if not SECRET_KEY:
 ALLOWED_HOSTS = env_list("DJANGO_ALLOWED_HOSTS", "localhost,127.0.0.1,testserver")
 CSRF_TRUSTED_ORIGINS = env_list("DJANGO_CSRF_TRUSTED_ORIGINS")
 
+# Render sets this to the service's public hostname (for example
+# shieldscan.onrender.com), so no host setup is needed there.
+RENDER_HOST = os.environ.get("RENDER_EXTERNAL_HOSTNAME")
+if RENDER_HOST:
+    ALLOWED_HOSTS.append(RENDER_HOST)
+    CSRF_TRUSTED_ORIGINS.append(f"https://{RENDER_HOST}")
+
 INSTALLED_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",
