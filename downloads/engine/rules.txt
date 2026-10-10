@@ -1,0 +1,5 @@
+# ShieldScan custom script rules. One per line:  score | description | regex
+# Rules apply to script files (.ps1 .bat .cmd .vbs .js .jse .wsf .hta .sh .py).
+# A script is reported when its combined score reaches 3.
+3 | Disables Windows Defender | set-mppreference\s+-disablerealtimemonitoring
+2 | Clears Windows event logs | wevtutil\s+cl\b

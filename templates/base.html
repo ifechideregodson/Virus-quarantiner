@@ -1,0 +1,34 @@
+{% load static %}<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}ShieldScan{% endblock %}</title>
+  <meta name="description" content="{% block description %}A small offline antivirus scanner you can read, download and run on your own machine.{% endblock %}">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100,800&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+  <link rel="stylesheet" href="{% static 'downloads/site.css' %}">
+</head>
+<body>
+  <div class="wrap">
+    <header class="top">
+      <a class="brand" href="{% url 'downloads:home' %}">ShieldScan</a>
+      <nav aria-label="Main">
+        <a href="{% url 'downloads:releases' %}"{% if request.resolver_match.url_name == 'releases' %} aria-current="page"{% endif %}>Downloads</a>
+        <a href="{% url 'downloads:scan' %}"{% if request.resolver_match.url_name == 'scan' %} aria-current="page"{% endif %}>Check files</a>
+        <a href="{% url 'downloads:docs' %}"{% if request.resolver_match.url_name == 'docs' %} aria-current="page"{% endif %}>Docs</a>
+      </nav>
+    </header>
+
+    <main>
+      {% block content %}{% endblock %}
+    </main>
+
+    <footer>
+      <p>A clean result means none of ShieldScan's checks fired, not that a file is safe. Keep your main antivirus switched on.</p>
+      <p class="label"><a href="{% url 'downloads:signatures' %}">signatures.txt</a> · <a href="{% url 'admin:index' %}">Admin</a></p>
+    </footer>
+  </div>
+</body>
+</html>

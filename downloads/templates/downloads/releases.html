@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}Downloads · ShieldScan{% endblock %}
+{% block content %}
+<section>
+  <div class="sec-head">
+    <span class="label">Downloads</span>
+    <h1 class="page">Every release</h1>
+    <p>Each ZIP holds the scanner, a signature list, optional custom rules and a short README. Compare the SHA-256 below with your download to confirm it arrived intact:</p>
+    <pre><code>python -c "import hashlib;print(hashlib.sha256(open('shieldscan-1.1.0.zip','rb').read()).hexdigest())"</code></pre>
+  </div>
+
+  {% if releases %}
+  <div class="tablewrap">
+    <table>
+      <thead><tr><th>Version</th><th>Released</th><th>Size</th><th>Downloads</th><th>SHA-256</th><th></th></tr></thead>
+      <tbody>
+      {% for r in releases %}
+        <tr>
+          <td><strong>{{ r.version }}</strong>{% if r.is_current %} <span class="pill clean">CURRENT</span>{% endif %}
+            {% if r.notes %}<div class="note">{{ r.notes|linebreaksbr }}</div>{% endif %}</td>
+          <td class="num">{{ r.released_at|date:"j M Y" }}</td>
+          <td class="num">{{ r.size_display }}</td>
+          <td class="num">{{ r.download_count }}</td>
+          <td class="hash">{{ r.sha256 }}</td>
+          <td><a class="btn small" href="{% url 'downloads:download' r.version %}">Download</a></td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+    <p class="note">No release has been published yet. An administrator can publish one with <code>python manage.py build_release</code>.</p>
+  {% endif %}
+</section>
+{% endblock %}

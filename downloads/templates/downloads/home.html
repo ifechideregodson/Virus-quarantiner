@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="hero">
+  <h1>ShieldScan</h1>
+  <p class="lede">A small antivirus scanner you download, read and run on your own machine. It checks files and ZIP archives against known-bad hashes, spots disguised and packed programs and suspicious scripts, watches a folder for new downloads, and moves what it finds into quarantine. It never deletes anything and never connects to the internet.</p>
+  <div class="actions">
+    {% if current %}
+      <a class="btn" href="{% url 'downloads:download_latest' %}">Download ShieldScan {{ current.version }}</a>
+    {% else %}
+      <span class="note">No release has been published yet.</span>
+    {% endif %}
+    <a class="btn ghost" href="{% url 'downloads:scan' %}">Check a file in your browser</a>
+  </div>
+  {% if current %}
+  <dl class="meta">
+    <div><dt>Version</dt><dd>{{ current.version }}</dd></div>
+    <div><dt>Released</dt><dd>{{ current.released_at|date:"j M Y" }}</dd></div>
+    <div><dt>Size</dt><dd>{{ current.size_display }}</dd></div>
+    <div><dt>Signatures</dt><dd>{{ signature_count }}</dd></div>
+    <div class="wide"><dt>SHA-256 of the ZIP</dt><dd class="hash">{{ current.sha256 }}</dd></div>
+  </dl>
+  {% endif %}
+</section>
+
+<section>
+  <div class="sec-head"><span class="label">What it checks</span><h2>Four layers, all readable</h2></div>
+  <div class="facts">
+    <div class="fact"><h3>Signature check</h3><p>Every file is hashed with SHA-256 and compared with the signature list. The EICAR test file is built in.</p></div>
+    <div class="fact"><h3>Disguise and packing</h3><p>Catches a program renamed to <code>.jpg</code> or <code>.pdf</code>, names like <code>invoice.pdf.exe</code>, and executables that look packed or encrypted.</p></div>
+    <div class="fact"><h3>Script check</h3><p>Scores PowerShell, batch, VBScript, JavaScript and shell files for hidden windows, encoded commands and download-and-run tricks.</p></div>
+    <div class="fact"><h3>Archives and watch mode</h3><p>Looks inside ZIP files, skips zip bombs, and checks new files in a folder every few seconds.</p></div>
+  </div>
+</section>
+
+<section>
+  <div class="sec-head"><span class="label">Get running</span><h2>Download, unzip, scan</h2></div>
+  <ol class="steps">
+    <li><div class="body"><p><strong>Download the ZIP</strong> and unzip it. You need Python 3.8 or newer. Nothing else to install.</p></div></li>
+    <li><div class="body"><p><strong>Scan a folder.</strong></p><pre><code>python shieldscan.py scan ~/Downloads --html report.html</code></pre></div></li>
+    <li><div class="body"><p><strong>Quarantine what it finds</strong> by adding <code>--quarantine</code>. Undo with <code>restore</code>. See the <a href="{% url 'downloads:docs' %}">docs</a> for every command.</p></div></li>
+  </ol>
+</section>
+{% endblock %}

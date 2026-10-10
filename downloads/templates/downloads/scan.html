@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}Check files · ShieldScan{% endblock %}
+{% block content %}
+<section>
+  <div class="sec-head">
+    <span class="label">Check files</span>
+    <h1 class="page">Check a file without installing anything</h1>
+    <p>Choose up to {{ max_files }} files of {{ max_mb }} MB or less. They are read into memory, checked and discarded. They are not saved, and nothing is kept about them. ZIP archives are opened one level deep.</p>
+  </div>
+
+  <form method="post" enctype="multipart/form-data" class="uploader">
+    {% csrf_token %}
+    <label for="{{ form.files.id_for_label }}">{{ form.files.label }}</label>
+    {{ form.files }}
+    {% for error in form.files.errors %}<p class="error" role="alert">{{ error }}</p>{% endfor %}
+    <button type="submit" class="btn">Check files</button>
+  </form>
+
+  {% if results %}
+  <div class="results" aria-live="polite">
+    {% for r in results %}
+    <div class="row">
+      <span class="fname">{{ r.name }}</span>
+      <span class="pill {{ r.verdict|lower }}">{{ r.verdict }}</span>
+      {% if r.reasons %}
+        <ul class="why">{% for reason in r.reasons %}<li>{{ reason }}</li>{% endfor %}</ul>
+      {% else %}
+        <span class="why">No signal fired.</span>
+      {% endif %}
+      <span class="sha">SHA-256 {{ r.sha256 }}</span>
+    </div>
+    {% endfor %}
+  </div>
+  <p class="note">Same engine as the downloadable scanner, minus quarantine and watch mode.</p>
+  {% endif %}
+</section>
+{% endblock %}

@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% block title %}Docs · ShieldScan{% endblock %}
+{% block content %}
+<section>
+  <div class="sec-head">
+    <span class="label">Docs</span>
+    <h1 class="page">Using ShieldScan</h1>
+    <p>ShieldScan needs Python 3.8 or newer and nothing else. Run <code>python --version</code> to check; on macOS and Linux the command may be <code>python3</code>.</p>
+  </div>
+
+  <h2>Commands</h2>
+  <pre><code>python shieldscan.py scan PATH [--quarantine] [--include-suspicious]
+                               [--report report.json] [--html report.html]
+                               [--rules rules.txt] [--exclude NAME ...]
+python shieldscan.py watch PATH [--interval 5] [--quarantine]
+python shieldscan.py list-quarantine
+python shieldscan.py restore ID</code></pre>
+  <p><code>--quarantine</code> moves malicious files to <code>~/.shieldscan/quarantine</code>. Add <code>--include-suspicious</code> to move suspicious files too. Nothing is ever deleted, and <code>restore</code> puts a file back. <code>watch</code> only checks files that arrive after it starts, so run <code>scan</code> on the folder once first.</p>
+
+  <h2>How it decides</h2>
+  <p>Each file gets a score. 3 to 7 is Suspicious, 8 and above is Malicious. A script needs a combined script score of at least 3 before it is reported, because one weak signal is common in harmless scripts.</p>
+  <div class="tablewrap">
+    <table>
+      <thead><tr><th>Signal</th><th>Applies to</th><th>Score</th></tr></thead>
+      <tbody>
+        <tr><td>SHA-256 matches the signature list</td><td>Any file</td><td class="num">10</td></tr>
+        <tr><td>EICAR antivirus test string</td><td>Any file</td><td class="num">10</td></tr>
+        <tr><td>Program header inside a .jpg, .pdf, .docx, .zip and similar</td><td>Disguised files</td><td class="num">4</td></tr>
+        <tr><td>Name like <code>report.pdf.exe</code></td><td>Double extensions</td><td class="num">3</td></tr>
+        <tr><td>Executable with entropy of 7.4 or more out of 8. Installers are often packed too, so this adds to other signals.</td><td>Executables</td><td class="num">2</td></tr>
+        <tr><td>Deletes Windows backup copies</td><td>Scripts</td><td class="num">5</td></tr>
+        <tr><td>Encoded PowerShell, run-at-startup entries, download piped into a shell</td><td>Scripts</td><td class="num">3 each</td></tr>
+        <tr><td>Hidden window, downloads from the internet, launches programs</td><td>Scripts</td><td class="num">2 each</td></tr>
+        <tr><td>Decodes base64, builds and runs code on the fly</td><td>Scripts</td><td class="num">1 each</td></tr>
+        <tr><td>Any of the above inside a ZIP (entries that expand 200 times or more are not opened)</td><td>ZIP files</td><td class="num">highest inside</td></tr>
+        <tr><td>Your own lines in <code>rules.txt</code>: <code>score | description | regex</code></td><td>Scripts</td><td class="num">you choose</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2>Plain limits</h2>
+  <div class="limits">
+    <div>
+      <h3>It does</h3>
+      <ul>
+        <li>Scan files, folders and ZIP archives on demand</li>
+        <li>Watch a folder and check new files within seconds</li>
+        <li>Explain every flag in plain words</li>
+        <li>Keep quarantined files restorable</li>
+      </ul>
+    </div>
+    <div class="no">
+      <h3>It does not</h3>
+      <ul>
+        <li>Protect you at the system level the way Defender does</li>
+        <li>Open RAR, 7z or password-protected archives, or detect brand-new malware families</li>
+        <li>Update itself or check the cloud</li>
+        <li>Replace Microsoft Defender, Malwarebytes or another full product</li>
+      </ul>
+    </div>
+  </div>
+
+  <p>
+    {% if current %}<a class="btn" href="{% url 'downloads:download_latest' %}">Download ShieldScan {{ current.version }}</a>{% endif %}
+    <a class="btn ghost" href="{% url 'downloads:signatures' %}">View signatures.txt</a>
+  </p>
+</section>
+{% endblock %}
